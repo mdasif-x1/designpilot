@@ -44,9 +44,24 @@ When tasked with designing, implementing, or reviewing user interfaces, follow t
 ### Stage 1: Contextual Discovery & Stack Audit
 Before proposing or writing UI code, inspect the target project's files, configuration, and stylesheets to establish ground truth:
 1. **Inspect Target Workspace Evidence:** Check the project's actual directories, routes, components, configuration files, and package manifests (`package.json`, etc.) before asking the user to repeat information already present.
-2. **Identify the Project Category:** Determine whether the application is a Developer Tool, B2B SaaS Dashboard, E-Commerce Catalog, Portfolio Showcase, or Institutional Portal based on genuine project evidence. Never treat DesignPilot's own plugin or reference files as evidence of the target application's domain or stack.
-3. **Inspect Existing Tech Stack & Tokens:** Identify active styling systems (Tailwind CSS, CSS custom properties, CSS Modules, Vanilla CSS, component libraries). Never overwrite an existing design token system without explicit authorization.
-4. **Handling Missing or Ambiguous Context:**
+2. **Evidence-Ranking Hierarchy for Conflicting Context:**
+   When repository evidence contains contradictory signals (e.g., documentation contradicts build configuration or active source files), resolve discrepancies using this evidence-based hierarchy:
+   - **Rank 1 (Observed Active Implementation):** Actual imports, entry points, route composition, build execution evidence where available, and code demonstrably executed or rendered by the application.
+   - **Rank 2 (Active Project Configuration):** Package manifests (`package.json`), lockfiles, compiler and bundler configurations (`vite.config.*`, `tsconfig.json`, `tailwind.config.*`), framework settings, and active component/styling configs.
+   - **Rank 3 (Related Source Conventions):** Shared layouts, components, design tokens, active stylesheets, and established interaction patterns across adjacent views.
+   - **Rank 4 (Informational Documentation):** `README.md`, architecture notes, design specs, changelogs, and inline code comments.
+   - **Rank 5 (User-Confirmed Information):** Explicit user clarification can define intended future direction when it intentionally departs from the current codebase. Always distinguish intended migrations from current implementation reality.
+   *Qualifications & Conflict Rules:*
+   - No single file is universally authoritative. Lockfiles may be stale, manifests may span monorepo packages, and source files may represent incomplete migrations. Check relevance, freshness, workspace scope, and corroborating evidence across files before deciding.
+   - Generated output, build artifacts, compiled bundles, generated API clients/types, and vendored code must not automatically be treated as primary evidence of intended styling or conventions. Identify their origin and relationship to source configuration before relying on them; judge them in context as corroborating evidence when they represent deployed reality or when the task specifically targets generated artifacts.
+   - Detect and explicitly report material contradictions in your audit rationale rather than silently following stale documentation or guessing.
+   - If evidence establishes the current implementation but not the intended product direction, state both separately.
+   - Ask a focused clarifying question only when uncertainty materially changes a design or implementation decision. Preserve the strict limit of at most two clarifying questions.
+   - Never silently migrate a framework or rewrite styling to resolve a documentation conflict.
+   - If evidence is insufficient, explicitly state what is unknown and proceed conservatively only where safe.
+3. **Identify the Project Category:** Determine whether the application is a Developer Tool, B2B SaaS Dashboard, E-Commerce Catalog, Portfolio Showcase, or Institutional Portal based on genuine project evidence. Never treat DesignPilot's own plugin or reference files as evidence of the target application's domain or stack.
+4. **Inspect Existing Tech Stack & Tokens:** Identify active styling systems (Tailwind CSS, CSS custom properties, CSS Modules, Vanilla CSS, component libraries). Never overwrite an existing design token system without explicit authorization.
+5. **Handling Missing or Ambiguous Context:**
    - If the project is empty, inaccessible, or materially ambiguous, ask at most two focused clarifying questions about missing information that would directly alter the design or technical implementation.
    - If the user explicitly requests a hypothetical concept or provides sufficient prompt context for a proposal, proceed with clearly labeled assumptions rather than unnecessarily blocking.
    - Never invent frameworks, brand guidelines, target personas, business rules, or legal mandates and present them as established facts.
@@ -58,7 +73,9 @@ Formulate a clear visual strategy grounded in user goals and verified requiremen
 1. **Explain the Rationale:** Provide a concise explanation of why the proposed visual tone, hierarchy, and density suit this specific product and audience.
 2. **Preserve Established Identity:** If existing brand colors, logos, or styles are present in the project, preserve them as primary accents.
 3. **Avoid Trend-Driven Decoration:** Do not add decorative styling (e.g., multi-color neon glows, floating blur spheres) unless it directly reinforces the product's identity or usability.
-4. **Distinguish Facts from Assumptions:** Clearly separate confirmed project facts, working assumptions, and illustrative examples. Label invented data points as `[Illustrative Placeholder]` in design specifications, audit notes, and mock-data documentation—not in production-facing interface copy. Example UI copy should use natural, realistic placeholder content appropriate to the confirmed product context, while never inventing real legal requirements, identifiers, eligibility rules, or operational promises.
+4. **Distinguish Facts, Inferences, and Proposals (Evidence Clarity):** Make the distinction between observed facts, inferences, and proposals explicit wherever confusion is reasonably likely. Prefer concise section labels (e.g., `Observed Context`, `Inferred Needs`, `Proposed Design`) or targeted inline tags (e.g., `[Observed]`, `[Inferred]`, `[Proposed]`) over mechanically tagging every sentence. Ensure the distinction works cleanly for both audits and new-design recommendations without making normal output verbose or repetitive. Label invented sample values as `[Illustrative Placeholder]` in design specifications, audit notes, and mock-data documentation—not in production-facing interface copy. Example UI copy should use natural, realistic placeholder content appropriate to the confirmed product context, while never inventing real legal requirements, identifiers, eligibility rules, or operational promises.
+5. **Feature & Content Attribution:** Distinguish existing content and capabilities from newly proposed UI enhancements. When recommending a new code example, banner, modal, interaction, or content block not found in the inspected project, explicitly identify it as proposed. Never refer to a proposed element as though it already exists.
+6. **Guard Against Unsupported Specificity:** Do not present unverified durations, timeouts, thresholds, API behavior, or business rules as established project requirements. Numeric values (such as debounce delays, animation durations, polling intervals, cache timeouts, or threshold limits) may be suggested as illustrative defaults when useful, but label them as proposals and explain that project conventions or requirements should determine the final value.
 
 ---
 
@@ -85,7 +102,12 @@ Consult the bundled reference guides to establish cohesive design foundations:
 ### Stage 4: Proportionate Implementation Guidance
 1. **Scope Discipline:** Make modifications proportionate to the user's explicit request. Do not refactor unrelated components or perform unrequested directory reorganizations.
 2. **Semantic Structure:** Use appropriate HTML5 semantic landmarks (`<main>`, `<nav>`, `<header>`, `<footer>`, `<section>`, `<article>`, `<button>`, `<input>`) where they improve assistive technology access.
-3. **Token Reuse:** Use existing CSS classes or variables rather than hardcoding arbitrary pixel values (e.g., use `var(--space-md)` or Tailwind `p-4`, not `padding: 17px`).
+3. **Token Reuse & Design-System Integrity:**
+   - Use existing CSS classes or variables rather than hardcoding arbitrary pixel values (e.g., use `var(--space-md)` or Tailwind `p-4`, not `padding: 17px`).
+   - When an existing component is present, inspect its supported props, variant APIs, and styling conventions before recommending implementation.
+   - Do not combine a semantic component variant with conflicting utility classes unless the project's styling mechanism explicitly supports that pattern.
+   - If a needed semantic variant or token is absent, explain the gap and offer a compatible proposal; do not silently expand the design system or claim the extension already exists.
+   - Do not mandate a new danger token or component variant when a smaller compatible option is supported by existing conventions.
 
 ---
 
@@ -104,7 +126,7 @@ Before delivering the interface, audit the implementation against common pitfall
 ---
 
 ### Stage 6: Honest Verification Declaration
-Conclude every UI task by reporting an evidence-based verification summary. Strictly separate verified facts, static reasoning, and unverified assumptions:
+Conclude every UI task by reporting an evidence-based verification summary. Strictly separate verified facts, static reasoning, and unverified proposals or assumptions:
 1. **Evidence-Based Evaluation Rules:**
    - A conceptual design plan is not proof that an implementation works.
    - A source code review is not proof of rendered visual or interactive behavior.

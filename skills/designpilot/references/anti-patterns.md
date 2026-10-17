@@ -117,3 +117,32 @@ Hardcoding regional identification formats (e.g., assuming US Social Security Nu
 
 ### The Fix
 Parameterize identity and document requirements according to verified program rules. In design specifications and mock-data notes, label invented sample values as `[Illustrative Placeholder]`, while presenting natural, realistic placeholder copy in the UI itself without inventing real legal requirements, identifiers, or operational promises. Recommend encrypted server-side session stores for sensitive draft data with explicit public workstation warnings, and distinguish client UI safeguards from backend transaction guarantees.
+
+---
+
+## 9. Design-System Variant Corruption & Silent Token Invention
+
+### The Failure Mode
+Combining a semantic component variant with conflicting utility classes (e.g., overriding variant background or text colors with ad-hoc utility classes), silently inventing new design tokens or component variants while claiming they already exist, or mandating a brand-new danger token when existing conventions already support a smaller compatible option.
+
+### Why It Fails
+- Breaches component encapsulation and causes unpredictable specificity conflicts across interactive states.
+- Masquerades unvetted design-system mutations as established project tokens, desynchronizing documentation and code.
+- Introduces unnecessary token sprawl when existing conventions suffice.
+
+### The Fix
+Inspect existing component props and styling conventions before recommending implementation. Do not combine semantic variants with conflicting utility classes unless the styling mechanism explicitly supports that pattern. If a needed variant or token is missing, explain the gap and propose a compatible addition rather than silently expanding the system or claiming it exists. Avoid mandating new danger tokens or variants when a smaller compatible option exists.
+
+---
+
+## 10. Unsupported Specificity & Fabricated Operational Constraints
+
+### The Failure Mode
+Presenting unverified durations (e.g., "dismiss alerts after exactly 4000ms"), timeouts, numeric thresholds (e.g., "enforce 30-day archive threshold"), API behavior, or business rules as established project requirements without repository evidence.
+
+### Why It Fails
+- Misrepresents arbitrary agent choices as authoritative system constraints.
+- Misleads implementers and creates false dependencies on unverified backend or product rules.
+
+### The Fix
+Do not present unverified durations, timeouts, thresholds, API behavior, or business rules as established project requirements. Numeric values may be suggested as illustrative defaults when useful, but label them as proposals and explain that project conventions or requirements should determine the final value.

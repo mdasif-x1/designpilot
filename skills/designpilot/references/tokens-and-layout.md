@@ -11,6 +11,12 @@ Before introducing any new styles, inspect the project's existing configuration:
 - **CSS Custom Properties (Variables):** Inspect `index.css`, `globals.css`, or `:root` declarations. Reuse existing `--color-*` and `--space-*` variables.
 - **Component Libraries (MUI, Chakra, Radix, Shadcn):** Leverage the library's built-in theme tokens. Do not bypass theme providers with inline raw values.
 
+### Component & Design-System Integrity
+1. **Inspect Supported Props & Conventions:** When an existing component is present, inspect its supported props, variant APIs, and styling conventions before recommending or writing implementation code.
+2. **Prevent Variant & Utility Conflicts:** Do not combine a semantic component variant (e.g., `variant="destructive"` or `variant="outline"`) with conflicting utility classes (such as overriding color, background, or padding classes) unless the project's styling mechanism explicitly supports that pattern.
+3. **Transparent Token & Variant Gaps:** If a needed semantic variant or token is absent, explain the gap and offer a compatible proposal; do not silently expand the design system or claim the extension already exists.
+4. **Proportionate, Compatible Additions:** Do not mandate a new danger token or component variant when a smaller compatible option is supported by existing conventions.
+
 ---
 
 ## 2. Semantic Color Architecture
@@ -104,15 +110,31 @@ Every interactive element (buttons, form inputs, links, list items) must specify
 
 ---
 
-## 6. Responsive Layouts & Fluid Containers
+## 6. Contextual Responsive Layouts & Device Adaptation
 
-### Responsive Breakpoints
-Adapt layouts smoothly across standard viewport boundaries:
-- **Mobile Viewports (< 640px):** Single-column vertical stacking, full-width inputs, touch-friendly tap targets (minimum 44x44px), and collapsible off-canvas navigation.
-- **Tablet Viewports (640px – 1024px):** Two-column split grids, adaptive sidebars, and fluid tables with horizontal scrolling containers where needed.
-- **Desktop Viewports (> 1024px):** Multi-column dashboard layouts, persistent navigation bars, and constrained max-widths (`max-w-7xl` or `1280px`) to prevent stretched interfaces on ultra-wide monitors.
+### Target Device Environment Discovery
+Before prescribing layout breakpoints or mobile adaptation rules, inspect project evidence to determine the actual target deployment environment:
+- **Public Responsive Web Application:** Broad public reach across smartphones, tablets, laptops, and ultra-wide desktops.
+- **Mobile-First Application:** Primarily designed for touchscreens, handheld portrait usage, and constrained bandwidth.
+- **Desktop-Oriented Professional Tool:** Power-user tool optimized for dense mouse/keyboard interaction, multi-column layouts, and wide monitors.
+- **Internal Workstation Application:** Mission-specific enterprise software deployed on standardized desktop/laptop hardware.
+- **Kiosk, Shared Device, or Constrained Embedded Interface:** Fixed display resolutions, touch-only or specialized inputs, and public physical security considerations (when explicitly evidenced).
+
+### Contextual Adaptation Rules:
+1. **Conventions Are Evidence, Not Law:** Existing media queries in stylesheets indicate historical conventions, not necessarily the complete intended supported device range. Check explicit requirements, target personas, input methods, content width, and deployment constraints.
+2. **Preserve Working Conventions:** Preserve existing responsive behavior and grid systems unless a justified, requested change demands modification.
+3. **Flexible Test Viewports:** Treat 375px (mobile), 768px (tablet), and 1280px (desktop) as useful verification viewports when relevant, not universal design laws.
+4. **Desktop Tools Do Not Require Mobile-First Redesigns:** A desktop-oriented operations dashboard or developer CLI viewer must not be forced into a mobile-first stacked layout. Focus on desktop ergonomics (dense data display, keyboard shortcuts) while ensuring graceful reflow and preventing horizontal breakage down to smaller desktop or laptop windows (e.g., 1024px or 1280px), in accordance with WCAG 1.4.10 (Reflow).
+5. **Breakpoints Do Not Equal Responsiveness:** A public web application cannot be declared responsive merely because CSS `@media` rules exist; inspect whether content overflows, navigation collapses cleanly, and forms remain usable across viewports.
+6. **Context-Sensitive Interactive Target Sizing:**
+   - While baseline WCAG 2.1 AA does not mandate a specific minimum touch-target dimension (WCAG 2.1 Criterion 2.5.5 Target Size is Level AAA, recommending 44x44px), providing generous target sizes (>=44x44px) serves as strong ergonomic design guidance on touchscreen interfaces and mobile viewports to prevent mis-taps.
+   - For desktop workstation interfaces operated primarily via mouse and keyboard, interactive elements (such as compact data-table action icons) do not require artificial touch padding, but must maintain clear visual spacing, unambiguous pointer affordance, and high-contrast visible keyboard focus indicators (`:focus-visible`).
+   - Never use desktop context to excuse cramped, overlapping controls, missing focus outlines, or keyboard inaccessibility.
+7. **Accessibility Distinct from Preference:** Distinguish mandatory accessibility constraints (e.g., 400% zoom reflow, keyboard focusability, minimum contrast) from elective aesthetic layout preferences.
+8. **Handling Unknown Device Context:** When the target device context is unevidenced and materially alters the layout architecture, ask a focused clarifying question (subject to the two-question budget) or explicitly declare the assumed device target.
 
 ### Anti-Overflow Safeguards:
 - Always set `box-sizing: border-box` globally.
-- Ensure images and videos are responsive: `max-width: 100%; height: auto;`.
+- Ensure media elements are fluid: `max-width: 100%; height: auto;`.
 - Avoid hardcoded fixed pixel widths on container elements (use `max-width` instead of `width`).
+- Use horizontal scroll wrappers (`overflow-x: auto`) around wide data tables to protect surrounding layouts on narrower viewports.
